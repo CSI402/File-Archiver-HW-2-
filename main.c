@@ -69,4 +69,6 @@ int main(int argc, char *argv[]){
 		fprintf(stderr, "Error: Unknown switch provided\n");
 		return 0;
 	}
+	
+	return 0;
 }
