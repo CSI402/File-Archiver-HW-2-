@@ -54,7 +54,7 @@ void archive(char** fileNames, int numFiles, char* archiveName){
     //Set size of file in bytes
     fSize = getFileSize(fp);
     //fwrite the size of the file in bytes to archive binary file (4-bytes)
-    fwrite((const void *)fSize, BYTE_SIZE_INT, 1, archive);
+    fwrite((const void *)&fSize, BYTE_SIZE_INT, 1, archive);
 
     //fwrite contents from file to archive binary file (fSize-bytes)
     fwrite((const void *)fp, fSize, 1, archive);
