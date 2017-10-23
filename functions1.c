@@ -62,9 +62,13 @@ void archive(char** fileNames, int numFiles, char* archiveName){
 }
 
 void unarchive(char* archivefile) {
-    FILE *archive = fopen(archiveFile, "rb"); //open archive file to be read
+  FILE *archive = fopen(archiveFile, "rb"); //open archive file to be read
   // FILE *newFile = fopen(newFile, "w+"); //open new file to be written
   int numFile; //number of files
+  int lenFileName;
+  char *fileName;
+  int numBytes;
+  char *fileContents;
 
   if (archive == NULL){                 //check if archive file opened
     fprintf(stderr, "Error opening file.");
@@ -75,5 +79,31 @@ void unarchive(char* archivefile) {
 
   fread(&numFile, 4, 1, archive);         //get number of files in archive
 
-  
+
+  //loop through all contents of archive file
+  for (int i = 0; i < numFile; i++){
+
+    //read length of file name from archive
+    fread(&lenFileName, BYTE_SIZE_CHAR, 1, archive);
+
+    //read file name from archive
+    fread(fileName, (lenFileName + 1), 1, archive);
+
+    //read number of bytes of contents
+    fread(&numBytes,  BYTE_SIZE_CHAR, 1, archive);
+
+    //reads the contents of the original file
+    fread(fileContents, numBytes, 1, archive);
+
+    //open file name as a file in the directory
+    FILE *fp = fopen(fileName, "w");
+
+    //check if file opened
+    if (fp == NULL){
+      fprintf(stderr, "Error, File cannot be opened");
+      exit(1); }        //exit code
+
+    fprintf(fp, fileContents);    //print contents to new file
+  }
+
 }
