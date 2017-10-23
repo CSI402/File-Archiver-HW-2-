@@ -62,44 +62,50 @@ void archive(char** fileNames, int numFiles, char* archiveName){
 }
 
 void unarchive(char* archivefile) {
-  FILE *archive = fopen(archiveFile, "rb"); //open archive file to be read
-  int numFile; //number of files
-  int lenFileName;
-  char *fileName;
-  int numBytes;
-  char *fileContents;
+   //Declare local variables
+  int numFile; //Store the number of files in the archive
+  int lenFileName; //Store the length of each file name
+  char *fileName = malloc(sizeof(char *)); //Store each file name
+  int numBytes; //Store the number of bytes contained in each file
+  char *fileContents = malloc(sizeof(char *)); //Store the contents of each file
 
-  if (archive == NULL){                 //check if archive file opened
-    fprintf(stderr, "Error opening file.");
-    exit(1); }                           //exit program
-
-  fread(&numFile, 4, 1, archive);         //get number of files in archive
-
-
-  //loop through all contents of archive file
-  for (int i = 0; i < numFile; i++){
-
-    //read length of file name from archive
-    fread(&lenFileName, BYTE_SIZE_CHAR, 1, archive);
-
-    //read file name from archive
-    fread(fileName, (lenFileName + 1), 1, archive);
-
-    //read number of bytes of contents
-    fread(&numBytes,  BYTE_SIZE_CHAR, 1, archive);
-
-    //reads the contents of the original file
-    fread(fileContents, numBytes, 1, archive);
-
-    //open file name as a file in the directory
-    FILE *fp = fopen(fileName, "w");
-
-    //check if file opened
-    if (fp == NULL){
-      fprintf(stderr, "Error, File cannot be opened");
-      exit(1); }        //exit code
-
-    fprintf(fp, fileContents);    //print contents to new file
+  FILE *archive = fopen(archiveFile, "rb");
+  if (archive == NULL){
+    fprintf(stderr, "Error: File %s cannot be opened to read\n", archiveFile);
+    return;
   }
 
+  fread(&numFile, BYTE_SIZE_INT, 1, archive);
+  printf("Num files: %d\n", numFile);
+
+  //Loop through the files in the archive file, file 0 through numFile
+  int i;
+  for (i = 0; i < numFile; i++){
+    //fread the length of each file name (1-byte unsigned char)
+    fread(&lenFileName, BYTE_SIZE_CHAR, 1, archive);
+    printf("Len file name: %d\n", lenFileName);
+
+    //fread the file name of each file (lenFileName + 1)
+    fread(fileName, (lenFileName + 1), 1, archive);
+    printf("File name: %s\n", fileName);
+
+    //fread the number of bytes of the contents of each file (4-byte unsigned int\
+eger)
+    fread(&numBytes, BYTE_SIZE_INT, 1, archive);
+    printf("Num file bytes: %d\n", numBytes);
+ //fread the contents of each file (numBytes bytes)
+    fread(fileContents, numBytes, 1, archive);
+    printf("File contents: %s\n", fileContents);
+
+    //Open the file for writing (creates a new file each time)
+    FILE *fp = fopen(fileName, "w");
+    //If file does not open, print error and quit
+    if (fp == NULL){
+      fprintf(stderr, "Error: File %s cannot be opened to write\n", fileName);
+      return;
+    }
+
+    //fprintf the file's contents to the file
+    fprintf(fp, fileContents);
+  }
 }
