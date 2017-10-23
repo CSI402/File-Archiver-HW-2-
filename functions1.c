@@ -62,4 +62,18 @@ void archive(char** fileNames, int numFiles, char* archiveName){
 }
 
 void unarchive(char* archivefile) {
+    FILE *archive = fopen(archiveFile, "rb"); //open archive file to be read
+  // FILE *newFile = fopen(newFile, "w+"); //open new file to be written
+  int numFile; //number of files
+
+  if (archive == NULL){                 //check if archive file opened
+    fprintf(stderr, "Error opening file.");
+    exit(1); }                           //exit program
+  /*if (newFile == NULL){                  //check if new file opened
+    fprintf(stderr, "Error creating file.");
+    exit(1); }  */                         //exit program
+
+  fread(&numFile, 4, 1, archive);         //get number of files in archive
+
+  
 }
