@@ -20,11 +20,12 @@ void archive(char** fileNames, int numFiles, char* archiveName){
   char *fName; //to store file name
   int l; //to store length of file name
   int fSize; //to store size of file in bytes
+  char line[200];
 
   //If file does not open, print error and quit
   if (archive == NULL){
     fprintf(stderr, "Error: File %s cannot be opened to write\n", (char *)archiveName)\
-;
+      ;
     return;
   }
 
@@ -46,23 +47,29 @@ void archive(char** fileNames, int numFiles, char* archiveName){
     //Set length of the file name
     l = strlen((const char *)fName);
     //fwrite the length of filename to archive binary file (1-byte unsigned char)
+    printf("Filenamelength: %d\n", l);
     fwrite((const void *)&l, BYTE_SIZE_CHAR, 1, archive);
 
     //fwrite the file name to archive binary file ((l+1)-bytes)
+    printf("Filename: %s\n", fName);
     fwrite((const void *)fName, (l+1), 1, archive);
 
     //Set size of file in bytes
     fSize = getFileSize(fp);
+    printf("Filesize: %d\n", fSize);
     //fwrite the size of the file in bytes to archive binary file (4-bytes)
     fwrite((const void *)&fSize, BYTE_SIZE_INT, 1, archive);
 
     //fwrite contents from file to archive binary file (fSize-bytes)
-    fwrite((const void *)fp, fSize, 1, archive);
+    while(!feof(fp)){
+      fscanf(fp, "%s", line);
+      fwrite(&line, sizeof(line), 1, archive);
+    }
   }
 }
 
 void unarchive(char* archiveFile) {
-   //Declare local variables
+  //Declare local variables
   int numFile; //Store the number of files in the archive
   int lenFileName; //Store the length of each file name
   char *fileName = malloc(sizeof(char *)); //Store each file name
@@ -89,11 +96,10 @@ void unarchive(char* archiveFile) {
     fread(fileName, (lenFileName + 1), 1, archive);
     printf("File name: %s\n", fileName);
 
-    //fread the number of bytes of the contents of each file (4-byte unsigned int\
-eger)
+    //fread the number of bytes of the contents of each file (4-byte unsigned integer)
     fread(&numBytes, BYTE_SIZE_INT, 1, archive);
     printf("Num file bytes: %d\n", numBytes);
- //fread the contents of each file (numBytes bytes)
+    //fread the contents of each file (numBytes bytes)
     fread(fileContents, numBytes, 1, archive);
     printf("File contents: %s\n", fileContents);
 
