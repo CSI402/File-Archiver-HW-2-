@@ -61,7 +61,7 @@ void archive(char** fileNames, int numFiles, char* archiveName){
   }
 }
 
-void unarchive(char* archivefile) {
+void unarchive(char* archiveFile) {
    //Declare local variables
   int numFile; //Store the number of files in the archive
   int lenFileName; //Store the length of each file name
