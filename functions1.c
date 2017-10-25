@@ -48,7 +48,7 @@ void archive(char** fileNames, int numFiles, char* archiveName){
     l = strlen((const char *)fName);
     //fwrite the length of filename to archive binary file (1-byte unsigned char)
     printf("Filenamelength: %d\n", l);
-    fwrite((const void *)&l, BYTE_SIZE_CHAR, 1, archive);
+    fwrite((const void *)&l, BYTE_SIZE_INT, 1, archive);
 
     //fwrite the file name to archive binary file ((l+1)-bytes)
     printf("Filename: %s\n", fName);
