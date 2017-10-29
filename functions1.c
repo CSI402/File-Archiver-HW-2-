@@ -20,7 +20,7 @@ void archive(char** fileNames, int numFiles, char* archiveName){
   char *fName; //to store file name
   int l; //to store length of file name
   int fSize; //to store size of file in bytes
-  char line[200];
+  char *contents = malloc(sizeof(char*)); //to store contents of each file
 
   //If file does not open, print error and quit
   if (archive == NULL){
@@ -61,10 +61,8 @@ void archive(char** fileNames, int numFiles, char* archiveName){
     fwrite((const void *)&fSize, BYTE_SIZE_INT, 1, archive);
 
     //fwrite contents from file to archive binary file (fSize-bytes)
-    while(!feof(fp)){
-      fscanf(fp, "%s", line);
-      fwrite(&line, sizeof(line), 1, archive);
-    }
+    fread((void *)contents, BYTE_SIZE_CHAR, fSize, fp);
+    fwrite((const void *)contents, BYTE_SIZE_CHAR, fSize, archive);
   }
 }
 
