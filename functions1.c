@@ -136,3 +136,40 @@ void unarchive(char* archiveFile) {
   fclose(fp);
   fclose(archive);
 }
+
+
+//creates an archive file of specified size from a set of files
+//If the desired size doesn't suffice, create as many archives as needed
+void archiveSpecial(char** filenames, int numFiles, char* archiveName, int archiv\
+eSize){
+  //Declare local variables
+  int totalfSize = 4; //store the total file size, starting at 4 for unsigned int\
+ of num files
+  FILE *fp; //text files for each loop iteration
+  char *fName; //file name for each iteration
+  int i;
+
+  for(i = 0; i < numFiles; i++){
+    totalfSize += BYTE_SIZE_CHAR; //add length of file name, 1-byte char;
+
+    //Set file name
+    fName = filenames[i];
+
+    //If file does not open, print error and quit
+    fp = fopen((const char *)fName, "r");
+    if (fp == NULL){
+      fprintf(stderr, "Error: File %s cannot be opened to read\n", fName);
+      return;
+    }
+
+    totalfSize += strlen((const char *)fName) + 1; //add length of file name + 1
+    totalfSize += BYTE_SIZE_INT; //add size of contents, an unsigned int
+    totalfSize += getFileSize(fp); //
+  }
+
+  //If archiveSize suffices, call archive
+  if (archiveSize > totalfSize){
+    archive(filenames, numFiles, archiveName);
+    return;
+  }
+ }
