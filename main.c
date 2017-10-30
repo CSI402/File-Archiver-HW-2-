@@ -5,8 +5,8 @@ Jessica Kanczura jKanczura@albany.edu : Leader
 */
 
 #include <stdio.h>
-#include "prototype1.h"
-#include "prototype2.h"
+#include "prototypes1.h"
+#include "prototypes2.h"
 #include "constants.h"
 #include <string.h>
 

@@ -106,8 +106,8 @@ void unarchive(char* archiveFile) {
     fread(fileName, (lenFileName + 1), 1, archive);
     printf("File name: %s\n", fileName);
 
-    //fread the number of bytes of the contents of each file (4-byte unsigned int\
-eger)
+    //fread the number of bytes of the contents of each file 
+    //(4-byte unsigned integer)
     fread(&numBytes, BYTE_SIZE_INT, 1, archive);
     printf("Num file bytes: %d\n", numBytes);
 
