@@ -15,22 +15,22 @@ int getFileSize(FILE *fp);
 void archive(char** fileNames, int numFiles, char* archiveName){
   //Declare local variables
   int i; //counter
-  FILE *archive = fopen(archiveName, "wb+"); //archive file pointer
+  FILE *archive = fopen(archiveName, "w"); //archive file pointer
   FILE *fp; //text files (temp for each loop iteration)
-  char *fName; //to store file name
-  int l; //to store length of file name
-  int fSize; //to store size of file in bytes
-  char *contents = malloc(sizeof(char*)); //to store contents of each file
+  char *fName; //to store each file name
+  char l; //to store length of each file name
+  int fSize; //to store size of each file in bytes
+  char *contents; //to store contents of each file
 
   //If file does not open, print error and quit
   if (archive == NULL){
-    fprintf(stderr, "Error: File %s cannot be opened to write\n", (char *)archiveName)\
-      ;
+    fprintf(stderr, "Error: File %s cannot be opened to write\n", (char *)archiveName);
     return;
   }
 
   //fwrite the number of files to the archive binary file (4-byte unsigned integer)
   fwrite((const void *)&numFiles, BYTE_SIZE_INT, 1, archive);
+  printf("Number of files: %d\n", numFiles);
 
   //Loop through the files to be archived, file 0 through numFiles
   for(i = 0; i < numFiles; i++){
@@ -45,34 +45,46 @@ void archive(char** fileNames, int numFiles, char* archiveName){
     }
 
     //Set length of the file name
-    l = strlen((const char *)fName);
+    l = (char)strlen((const char *)fName);
     //fwrite the length of filename to archive binary file (1-byte unsigned char)
-    printf("Filenamelength: %d\n", l);
-    fwrite((const void *)&l, BYTE_SIZE_INT, 1, archive);
+    fwrite((const void *)&l, BYTE_SIZE_CHAR, 1, archive);
+    printf("Length of %d file name: %d\n", i, l);
 
     //fwrite the file name to archive binary file ((l+1)-bytes)
-    printf("Filename: %s\n", fName);
     fwrite((const void *)fName, (l+1), 1, archive);
+    printf("Name of file: %s\n", fName);
 
     //Set size of file in bytes
     fSize = getFileSize(fp);
-    printf("Filesize: %d\n", fSize);
+
     //fwrite the size of the file in bytes to archive binary file (4-bytes)
     fwrite((const void *)&fSize, BYTE_SIZE_INT, 1, archive);
+    printf("File size: %d\n", fSize);
+
+    //Allocate memory for contents
+    contents = (char *)malloc(sizeof(char)*fSize);
 
     //fwrite contents from file to archive binary file (fSize-bytes)
     fread((void *)contents, BYTE_SIZE_CHAR, fSize, fp);
     fwrite((const void *)contents, BYTE_SIZE_CHAR, fSize, archive);
+    printf("File contents: %s\n", contents);
+
+    //Free the memory for contents
+    free(contents);
   }
+
+  fclose(archive);
+  fclose(fp);
 }
 
 void unarchive(char* archiveFile) {
   //Declare local variables
   int numFile; //Store the number of files in the archive
-  int lenFileName; //Store the length of each file name
+  char lenFileName; //Store the length of each file name
   char *fileName = malloc(sizeof(char *)); //Store each file name
+  FILE *fp; //Store each file
   int numBytes; //Store the number of bytes contained in each file
-  char *fileContents = malloc(sizeof(char *)); //Store the contents of each file
+  char *fileContents; //Store the contents of each file
 
   FILE *archive = fopen(archiveFile, "rb");
   if (archive == NULL){
@@ -80,29 +92,34 @@ void unarchive(char* archiveFile) {
     return;
   }
 
-  fread(&numFile, BYTE_SIZE_INT, 1, archive);
+  fread((void *)&numFile, BYTE_SIZE_INT, 1, archive);
   printf("Num files: %d\n", numFile);
 
   //Loop through the files in the archive file, file 0 through numFile
   int i;
-  for (i = 0; i < numFile; i++){
+  for (i = 0; i < (int)numFile; i++){
     //fread the length of each file name (1-byte unsigned char)
-    fread(&lenFileName, BYTE_SIZE_CHAR, 1, archive);
+    fread((void *)&lenFileName, BYTE_SIZE_CHAR, 1, archive);
     printf("Len file name: %d\n", lenFileName);
 
     //fread the file name of each file (lenFileName + 1)
     fread(fileName, (lenFileName + 1), 1, archive);
     printf("File name: %s\n", fileName);
 
-    //fread the number of bytes of the contents of each file (4-byte unsigned integer)
+    //fread the number of bytes of the contents of each file (4-byte unsigned int\
+eger)
     fread(&numBytes, BYTE_SIZE_INT, 1, archive);
     printf("Num file bytes: %d\n", numBytes);
+
+    //Allocate memory for fileContents
+    fileContents = (char *)malloc(sizeof(char)*numBytes);
+
     //fread the contents of each file (numBytes bytes)
     fread(fileContents, numBytes, 1, archive);
     printf("File contents: %s\n", fileContents);
 
     //Open the file for writing (creates a new file each time)
-    FILE *fp = fopen(fileName, "w");
+    fp = fopen(fileName, "w");
     //If file does not open, print error and quit
     if (fp == NULL){
       fprintf(stderr, "Error: File %s cannot be opened to write\n", fileName);
@@ -111,5 +128,11 @@ void unarchive(char* archiveFile) {
 
     //fprintf the file's contents to the file
     fprintf(fp, fileContents);
-  }
+
+    //Free the memory for fileContents
+    free(fileContents);
+    }
+
+  fclose(fp);
+  fclose(archive);
 }
